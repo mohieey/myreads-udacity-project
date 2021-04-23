@@ -17,11 +17,12 @@ class BooksApp extends React.Component {
     });
   }
 
-  changeBookStatus = (id, status) => {
-    const index = this.state.books.findIndex((b) => b.id === id);
-    const books = this.state.books;
-    books[index].shelf = status;
-    this.setState({ books: books });
+  changeBookStatus = (book, status) => {
+    BooksAPI.update(book, status).then(() => {
+      BooksAPI.getAll().then((books) => {
+        this.setState({ books: books });
+      });
+    });
   };
 
   render() {
@@ -35,6 +36,8 @@ class BooksApp extends React.Component {
               books={this.state.books}
               onDeleteContact={this.removeContact}
               changeBookStatus={this.changeBookStatus}
+              BooksAPI={BooksAPI}
+              books={this.state.books}
             />
           )}
         />

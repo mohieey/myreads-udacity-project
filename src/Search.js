@@ -2,19 +2,35 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 class Search extends Component {
-  state = { Query: "" };
+  state = { Query: "", ToSearchIn: [] };
   updateQuery = (q) => {
     this.setState({ Query: q });
-    console.log(q);
+    if (q.length === 0) {
+      this.setState({ ToSearchIn: [] });
+      return;
+    }
+    this.props.BooksAPI.search(q)
+      .then((books) => {
+        if (books) this.setState({ ToSearchIn: books });
+        // else this.setState({ ToSearchIn: [] });
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .catch((err) => {
+        this.setState({ ToSearchIn: [] });
+      });
+  };
+
+  verifyStatus = (book) => {
+    this.props.BooksAPI.getAll().then((books) => {
+      const bookInSearch = books.find((b) => b.id === book.id);
+      if (bookInSearch) book.shelf = bookInSearch.shelf;
+      else book.shelf = "none";
+    });
   };
 
   render() {
-    const ToShow = this.props.books.filter(
-      (b) =>
-        b.title.toLowerCase().includes(this.state.Query.toLowerCase()) ||
-        b.authors.filter((a) => a.toLowerCase().includes(this.state.Query))
-          .length > 0
-    );
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -45,49 +61,62 @@ class Search extends Component {
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
-            {ToShow.map((book) => (
-              <li key={book.id}>
-                <div className="book">
-                  <div className="book-top">
-                    <div
-                      className="book-cover"
-                      style={{
-                        width: 128,
-                        height: 192,
-                        backgroundImage: `url(${book.imageLinks.thumbnail})`,
-                      }}
-                    />
-                    <div className="book-shelf-changer">
-                      <select
-                        value={book.shelf}
-                        onChange={(event) =>
-                          this.props.changeBookStatus(
-                            book.id,
-                            event.target.value
-                          )
-                        }
-                      >
-                        <option value="move" disabled>
-                          Move to...
-                        </option>
-                        <option value="currentlyReading">
-                          Currently Reading
-                        </option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
-                        <option value="none">None</option>
-                      </select>
+            {this.state.ToSearchIn.length > 0 &&
+              this.state.ToSearchIn.map((book) => {
+                const bookInShelves = this.props.books.find(
+                  (b) => b.id === book.id
+                );
+                if (bookInShelves) book.shelf = bookInShelves.shelf;
+                else book.shelf = "none";
+                return (
+                  <li key={book.id}>
+                    <div className="book">
+                      <div className="book-top">
+                        {book.imageLinks && (
+                          <div
+                            className="book-cover"
+                            style={{
+                              width: 128,
+                              height: 192,
+                              backgroundImage: `url(${
+                                book.imageLinks.smallThumbnail
+                              })`,
+                            }}
+                          />
+                        )}
+                        <div className="book-shelf-changer">
+                          <select
+                            value={book.shelf}
+                            onChange={(event) =>
+                              this.props.changeBookStatus(
+                                book,
+                                event.target.value
+                              )
+                            }
+                          >
+                            <option value="move" disabled>
+                              Move to...
+                            </option>
+                            <option value="currentlyReading">
+                              Currently Reading
+                            </option>
+                            <option value="wantToRead">Want to Read</option>
+                            <option value="read">Read</option>
+                            <option value="none">None</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="book-title">{book.title}</div>
+                      <div className="book-authors">
+                        {book.authors &&
+                          book.authors.map((bookAuthor) => (
+                            <p key={bookAuthor}>{bookAuthor}</p>
+                          ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="book-title">{book.title}</div>
-                  <div className="book-authors">
-                    {book.authors.map((bookAuthor) => (
-                      <p key={bookAuthor}>{bookAuthor}</p>
-                    ))}
-                  </div>
-                </div>
-              </li>
-            ))}
+                  </li>
+                );
+              })}
           </ol>
         </div>
       </div>
