@@ -18,6 +18,6 @@ This project was built by me with React and The Backend was implemented by Udaci
 
 # Copyrights
 
-Feel free to download the app and desructure it for learning purposes, but don't submit as it was use your project to avoid being revoked by Udacity.
+Feel free to download the app and desructure it for learning purposes, but don't submit as it was your own project to avoid being revoked by Udacity.
 
 # Happy Learning :)
