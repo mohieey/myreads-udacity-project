@@ -14,7 +14,7 @@ The User can refresh the page and the data will still available.
 
 # Framework
 
-This project is built by me with React and The Backend is implemented by Udacity.
+This project was built by me with React and The Backend was implemented by Udacity.
 
 # Copyrights
 
